@@ -1,0 +1,89 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ rootNamespace }}Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use App\Repositories\Sql\AdminRepository;
+use App\Repositories\Sql\AdminRepository;
+
+
+
+class {{ class }} extends Controller
+{
+    protected $adminRepo ;
+    public function __construct(AdminRepository $adminRepo)
+    {
+        $this->middleware('permission:clint_types-read')->only(['index']);
+        $this->middleware('permission:clint_types-create')->only(['create', 'store']);
+        $this->middleware('permission:clint_types-update')->only(['edit', 'update']);
+        $this->middleware('permission:clint_types-delete')->only(['destroy']);
+        $this->adminRepo = $adminRepo ;
+
+    }
+
+
+    public function get_admins()
+    {
+        // return $this->adminService->get_admins();
+    }
+
+    public function index()
+    {
+
+         return view('dashboard.backend.admins.index');
+    }
+
+
+    public function create()
+    {
+         return view('dashboard.backend.admins.create');
+    }
+
+
+    public function store(Request $request)
+    {
+
+       $data = $request->except('img');
+       // $this->adminService->add_admin($request , $data);
+       return redirect(route('admin.admins.index'))->with('success', __('models.added_successfully'));
+
+    }
+
+
+    public function show($id)
+    {
+        //
+    }
+
+
+    public function edit($id)
+    {
+        return view('dashboard.backend.admins.edit' , compact('admin'));
+
+    }
+
+
+    public function update(Request $request, $id)
+    {
+        $admin = $this->adminRepo->findOne($id);
+        $data = $request->except('img' );
+       // $this->adminService->update_admin($request , $data , $admin);
+       return redirect(route('admin.admins.index'))->with('success', __('models.updated_successfully'));
+    }
+
+
+    public function destroy($id)
+    {
+         $admin = $this->adminRepo->findOne($id);
+
+        if ($admin->img) {
+            Storage::delete($admin->img);
+        }
+
+        $admin->delete();
+        return redirect(route('admin.admins.index'))->with('success', __('models.deleted_successfully'));
+
+    }
+}
